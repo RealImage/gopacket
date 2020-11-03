@@ -140,6 +140,10 @@ func (r *router) route(routes routeSlice, input net.HardwareAddr, src, dst net.I
 		if rt.Src == nil && rt.Dst == nil {
 			continue
 		}
+		// skip interfaces without address
+		if rt.PrefSrc == nil {
+			continue
+		}
 		if rt.Src != nil && !rt.Src.Contains(src) {
 			continue
 		}
