@@ -106,16 +106,25 @@ func (r *router) RouteWithSrc(input net.HardwareAddr, src, dst net.IP) (iface *n
 		return
 	}
 
-	// Interfaces are 1-indexed, but we store them in a 0-indexed array.
-	ifaceIndex--
+	rIfaceIndex := -1
 
-	iface = &r.ifaces[ifaceIndex]
+	for i := range r.ifaces {
+		if r.ifaces[i].Index == ifaceIndex {
+			iface = &r.ifaces[i]
+			rIfaceIndex = i
+		}
+	}
+
+	if rIfaceIndex == -1 {
+		err = fmt.Errorf("interface not for index %d", ifaceIndex)
+	}
+
 	if preferredSrc == nil {
 		switch {
 		case dst.To4() != nil:
-			preferredSrc = r.addrs[ifaceIndex].v4
+			preferredSrc = r.addrs[rIfaceIndex].v4
 		case dst.To16() != nil:
-			preferredSrc = r.addrs[ifaceIndex].v6
+			preferredSrc = r.addrs[rIfaceIndex].v6
 		}
 	}
 	return
